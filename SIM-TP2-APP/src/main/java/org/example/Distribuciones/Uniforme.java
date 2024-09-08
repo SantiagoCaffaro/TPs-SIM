@@ -11,10 +11,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import org.example.App;
 import org.example.Utils.BooleanUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Uniforme extends Distribucion {
@@ -46,7 +46,7 @@ public class Uniforme extends Distribucion {
     @Override
     public void distributionInput() {
         Stage stage = new Stage();
-        stage.setTitle("Generador de Distribución Uniforme");
+        stage.setTitle("Generador de Distribucion Uniforme");
 
         // Verificar para cada input si es valido
         boolean[] areInputsValid = new boolean[3];
@@ -54,6 +54,9 @@ public class Uniforme extends Distribucion {
         // generateButton
         Button generateButton = new Button("Generar");
         generateButton.setDisable(true);
+
+        // volverButton
+        Button volverButton = new Button("Volver");
 
         // rangeLabel
         Label rangeLabel = new Label("Ingrese el rango (a, b):");
@@ -104,8 +107,8 @@ public class Uniforme extends Distribucion {
         vBoxTop.setPadding(new Insets(10));
         vBoxTop.setSpacing(8);
 
-        VBox vboxBottom = new VBox(generateButton);
-        vboxBottom.setAlignment(Pos.BOTTOM_RIGHT);
+        VBox vboxBottom = new VBox(generateButton, volverButton);
+        vboxBottom.setAlignment(Pos.CENTER);
         vboxBottom.setPadding(new Insets(10));
         vboxBottom.setSpacing(8);
 
@@ -122,7 +125,15 @@ public class Uniforme extends Distribucion {
             pruebaChiCuadrado();
             showResults();
         });
+
+        volverButton.setOnAction(e -> {
+            stage.close();
+            // Reabre la ventana principal
+            try {
+                new App().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
-
-
 }

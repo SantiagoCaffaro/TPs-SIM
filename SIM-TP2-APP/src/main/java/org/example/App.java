@@ -51,7 +51,8 @@ public class App extends Application {
         // sampleSizeInput
         Label sampleSizeLabel = new Label("Ingrese el tamaño de la muestra n entre 1 y 1.000.000:");
         TextField sampleSizeInput = new TextField();
-        sampleSizeInput.setPromptText("Ej.: 1000");
+        sampleSizeInput.setPromptText("Ejemplo: 100");
+        sampleSizeInput.setMaxWidth(200);  // Limita el ancho máximo
 
         // continueButton
         Button continueButton = new Button();
@@ -77,8 +78,8 @@ public class App extends Application {
         ComboBox<String> distributionDropdown = new ComboBox<>();
         distributionDropdown.getItems().addAll(
                 Arrays.stream(EnumDistribution.values())
-                .map(EnumDistribution::getName)
-                .collect(Collectors.toList()));
+                        .map(EnumDistribution::getName)
+                        .collect(Collectors.toList()));
         distributionDropdown.setPromptText("Seleccione una distribución");
 
         // distributionDropdown validacion

@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.math3.distribution.NormalDistribution;
+import org.example.App;
 import org.example.Utils.BooleanUtils;
 
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class Normal extends Distribucion {
         Button generateButton = new Button("Generar");
         generateButton.setDisable(true);
 
+        // volverButton
+        Button volverButton = new Button("Volver");
+
         // inputLabel
         Label inputLabel = new Label("Ingrese la media μ y la desviación σ:");
 
@@ -57,9 +61,9 @@ public class Normal extends Distribucion {
             }
         });
 
-        // desvacionInput
+        // desviacionInput
         TextField desviacionInput = new TextField();
-        desviacionInput.setPromptText("Desviacion σ");
+        desviacionInput.setPromptText("Desviación σ");
 
         desviacionInput.textProperty().addListener(new ChangeListener<String>() {
             @Override
@@ -80,8 +84,8 @@ public class Normal extends Distribucion {
         vBoxTop.setPadding(new Insets(20));
         vBoxTop.setSpacing(8);
 
-        VBox vboxBottom = new VBox(generateButton);
-        vboxBottom.setAlignment(Pos.BOTTOM_RIGHT);
+        VBox vboxBottom = new VBox(generateButton, volverButton);
+        vboxBottom.setAlignment(Pos.CENTER);
         vboxBottom.setPadding(new Insets(10));
         vboxBottom.setSpacing(8);
 
@@ -98,6 +102,16 @@ public class Normal extends Distribucion {
             pruebaChiCuadrado();
             showResults();
         });
+
+        volverButton.setOnAction(e -> {
+            stage.close();
+            // Reabre la ventana principal
+            try {
+                new App().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     @Override
@@ -106,17 +120,17 @@ public class Normal extends Distribucion {
 
         double[] normalNumbers = new double[N];
         for (int i = 0; i < N; i += 2) {
-            // Obtener los 2 numeros aleatorios que se uaran en el metodo de box muller
+            // Obtener los 2 números aleatorios que se usarán en el método de Box-Muller
             double rnd01Primero = rnd01[i];
             double rnd01Segundo = 0;
             if (i + 1 < N) {
                 rnd01Segundo = rnd01[i + 1];
             } else {
-                // Si N era impar, para el ultimo rnd01, se debe generar un ultimo rnd01
+                // Si N era impar, para el último rnd01, se debe generar un último rnd01
                 rnd01Segundo = new Random().nextDouble();
             }
 
-            // Metodo de box muller
+            // Método de Box-Muller
             normalNumbers[i] = Math.sqrt(-2 * Math.log(1 - rnd01Primero)) *
                     Math.sin(2 * Math.PI * rnd01Segundo) *
                     desviacion[0] +
@@ -143,6 +157,4 @@ public class Normal extends Distribucion {
 
         return frecuenciasEsperadas;
     }
-
-
 }

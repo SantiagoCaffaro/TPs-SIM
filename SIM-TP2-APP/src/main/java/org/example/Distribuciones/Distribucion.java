@@ -13,6 +13,7 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.example.Graphics.Histogram;
 import org.example.Utils.ListUtils;
+import org.example.App;  // Ajusta el paquete según sea necesario
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.util.Iterator;
 @FieldDefaults(level = AccessLevel.PROTECTED)
 public abstract class Distribucion {
 
-    static final String csvFilePath = "./GeneratedNumbers/numerosgenerados.csv";
+    static final String csvFilePath = "Tabla-Numero-Aleatorios/numerosgenerados.csv";
 
     int cantidadDeIntervalosK;
     double[] rnd01;
@@ -153,6 +154,8 @@ public abstract class Distribucion {
 
     }
 
+
+
     void showResults() {
         generateCsv();
 
@@ -169,16 +172,29 @@ public abstract class Distribucion {
         vbox.setAlignment(Pos.CENTER_LEFT); // Alineación a la izquierda
         vbox.setPadding(new Insets(20));
 
-        // Crear el botón
+        // Crear el botón para mostrar el histograma
         Button histogramButton = new Button("Ver Histograma");
         histogramButton.setOnAction(e -> {
             // Llama a la función showHistogram cuando se presiona el botón
             Histogram.displayHistogram(limites, frecuenciasObservadas);
         });
 
-        // Agregar el botón al VBox
-        vbox.getChildren().add(histogramButton);
+        // Crear el botón para volver
+        Button volverButton = new Button("Volver al Inicio");
+        volverButton.setOnAction(e -> {
+            Stage currentStage = (Stage) vbox.getScene().getWindow();
+            currentStage.close();
+            // Reabre la ventana principal
+            try {
+                new App().start(new Stage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
 
+        // Agregar los botones al VBox
+        vbox.getChildren().addAll(histogramButton, volverButton);
+        VBox.setMargin(volverButton, new Insets(20, 0, 0, 0));
 
         Label minLabel = new Label("Mínimo: " + String.format("%.4f", min));
         minLabel.setPadding(new Insets(0, 0, 10, 0));
@@ -212,7 +228,7 @@ public abstract class Distribucion {
         vbox.getChildren().addAll(
                 muestraLabel, intervalosLabel, minLabel, maxLabel, rangoLabel,
                 amplitudLabel, mediaLabel, varianzaLabel, frecuenciaObservadaLabel,
-                frecuenciaEsperadaLabel, chiCuadradoLabel, histogramButton);
+                frecuenciaEsperadaLabel, chiCuadradoLabel, histogramButton, volverButton);
 
         // Establecer el título de la ventana
         Stage stage = new Stage();
@@ -221,6 +237,13 @@ public abstract class Distribucion {
         stage.setScene(dataScene);
         stage.show();
     }
+
+
+
+
+
+
+
 
     private void generateCsv() {
         // Escribe los números aleatorios generados en un archivo CSV

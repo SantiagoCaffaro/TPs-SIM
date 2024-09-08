@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.example.App;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,7 +50,6 @@ public class Exponencial extends Distribucion {
         return frecuenciasEsperadas;
     }
 
-    //
     @Override
     public void distributionInput() {
         Stage stage = new Stage();
@@ -61,6 +61,9 @@ public class Exponencial extends Distribucion {
         // generateButton
         Button generateButton = new Button("Generar");
         generateButton.setDisable(true);
+
+        // volverButton
+        Button volverButton = new Button("Volver");
 
         // inputLabel
         Label inputLabel = new Label("Ingrese λ:");
@@ -78,7 +81,6 @@ public class Exponencial extends Distribucion {
                     if (lambda[0] > 0) {
                         isValid.set(true);
                         generateButton.setDisable(false);
-
                     } else {
                         isValid.set(false);
                         generateButton.setDisable(true);
@@ -97,25 +99,29 @@ public class Exponencial extends Distribucion {
         vbox.setPadding(new Insets(10));
         vbox.setSpacing(8);
 
-        VBox VboxBottom = new VBox(generateButton);
-        VboxBottom.setAlignment(Pos.CENTER);
-        VboxBottom.setPadding(new Insets(20));
-        VboxBottom.setSpacing(10);
+        VBox vboxBottom = new VBox(generateButton, volverButton);
+        vboxBottom.setAlignment(Pos.CENTER);
+        vboxBottom.setPadding(new Insets(20));
+        vboxBottom.setSpacing(10);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setTop(vbox);
-        borderPane.setBottom(VboxBottom);
+        borderPane.setBottom(vboxBottom);
 
         Scene exponentialInputScene = new Scene(borderPane, 600, 200);
         stage.setScene(exponentialInputScene);
         stage.show();
 
         generateButton.setOnAction(e -> {
-            ((Stage) exponentialInputScene.getWindow()).close();
+            stage.close();
             pruebaChiCuadrado();
             showResults();
         });
 
+        volverButton.setOnAction(e -> {
+            stage.close();
+            // Reabre la ventana principal
+            new App().start(new Stage());
+        });
     }
-
 }
