@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.example.Graphics.Histogram;
+import org.example.Utils.CSVUtils;
 import org.example.Utils.ListUtils;
 import org.example.App;  // Ajusta el paquete según sea necesario
 
@@ -236,6 +237,8 @@ public abstract class Distribucion {
         Scene dataScene = new Scene(vbox, 600, 500);
         stage.setScene(dataScene);
         stage.show();
+
+        CSVUtils.abrirCSV((csvFilePath));
     }
 
 

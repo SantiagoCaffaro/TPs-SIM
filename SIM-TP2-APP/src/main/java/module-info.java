@@ -5,4 +5,6 @@ module org.example {
     requires commons.math3;
     exports org.example;
     exports org.example.Distribuciones;
+    requires java.desktop; // Agrega esta línea para tener acceso a java.awt
+
 }
