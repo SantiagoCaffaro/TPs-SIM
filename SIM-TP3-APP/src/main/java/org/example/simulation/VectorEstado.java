@@ -62,6 +62,7 @@ public class VectorEstado {
                 }
                 break;
             default:
+                totalYaCompraron = 0;
                 break;
         }
         return totalYaCompraron;
@@ -83,6 +84,7 @@ public class VectorEstado {
                 }
                 break;
             default:
+                totalProbablesCompra = 0;
                 break;
         }
         return totalProbablesCompra;
@@ -184,13 +186,17 @@ public class VectorEstado {
 
             // Asignación de los valores a los vectores según la muestra
             if (muestras % 2 == 0) {
-                vectorPar[6] = acumYaComprado;
-                vectorPar[7] = acumProbableCompra;
-                matriz[muestras / 2] = vectorPar.clone();
+                vectorPar = vectorActual.clone();
             } else {
-                vectorImpar[6] = acumYaComprado;
-                vectorImpar[7] = acumProbableCompra;
-                matriz[muestras / 2] = vectorImpar.clone();
+                vectorImpar = vectorActual.clone();
+            }
+
+            if (muestras >= j && muestras < j + i) {
+                matriz[muestras - j] = vectorActual;
+            }
+            //fuardar la ultima fila generada
+            if (muestras == N - 1 && j + i < N) {
+                ultimaFila = vectorActual;
             }
         }
 
