@@ -15,6 +15,7 @@ public class VectorEstado {
         String rndString = String.format("%.2f", rnd).replace(",", ".");
         return Double.parseDouble(rndString);
     }
+
     // Obtener el porcentaje de compradores sobre el total de simulaciones
     public double getPorcentajeCompradores() {
         return (double) totalYaCompraron / totalSimulaciones * 100;
@@ -25,6 +26,8 @@ public class VectorEstado {
         int totalPosiblesCompradores = totalYaCompraron + totalProbablesCompra + totalInteresadosProbarlo;
         return (double) totalYaCompraron / totalPosiblesCompradores;
     }
+
+    // Método para determinar la categoría de la persona basada en el valor aleatorio generado
     private static int getcategory(double rndGen) {
         int category;
         if (rndGen < 0.30) {
@@ -42,55 +45,63 @@ public class VectorEstado {
         }
         return category;
     }
-    private static double getContYaComprado(int category,double rnd){
+
+    // Método para contar las personas que ya compraron basado en la categoría
+    private static int getContYaComprado(int category, double rnd) {
         int totalYaCompraron = 0;
 
         switch (category) {
             case 3: // probPersAdultaNoRecuerdaFlayer
-                double randAdultaNoRecuerda = rnd;
-                if (randAdultaNoRecuerda < 0.02) {
+                if (rnd < 0.02) {
                     totalYaCompraron++;
                 }
                 break;
             case 4: // probPersAdultaRecuerdaFlayer
-                double randAdultaRecuerda = rnd;
-                if (randAdultaRecuerda < 0.20) {
+                if (rnd < 0.20) {
                     totalYaCompraron++;
                 }
                 break;
             default:
                 break;
+        }
         return totalYaCompraron;
-
     }
-    private static double getContProbableCompra(int category, double rnd){
+
+    // Método para contar las personas que probablemente comprarán basado en la categoría
+    private static int getContProbableCompra(int category, double rnd) {
         int totalProbablesCompra = 0;
 
         switch (category) {
             case 3: // probPersAdultaNoRecuerdaFlayer
-                double randAdultaNoRecuerda = rnd;
-                if (randAdultaNoRecuerda < 0.20) {
+                if (rnd < 0.20) {
                     totalProbablesCompra++;
                 }
                 break;
             case 4: // probPersAdultaRecuerdaFlayer
-                double randAdultaRecuerda = rnd;
-                if (randAdultaRecuerda < 0.70) {
+                if (rnd < 0.70) {
                     totalProbablesCompra++;
                 }
                 break;
             default:
                 break;
-            return totalProbablesCompra;
         }
+        return totalProbablesCompra;
     }
 
-    public static double[][] generadorVectoresParImpar(int N, int i, int j){
+    // Método para calcular el porcentaje
+    private static double calcularPorcentaje(int total, int muestras) {
+        return (double) total / muestras * 100;
+    }
+
+    // Método para generar vectores según par o impar
+    public static double[][] generadorVectoresParImpar(int N, int i, int j) {
         Random random = new Random();
 
-         int totalProbablesCompra = 0;
-         int totalInteresadosProbarlo = 0;
-         int totalSimulaciones = 0;
+        // Variables para almacenar los totales de cada tipo de compra
+        int totalProbablesCompra = 0;
+        int totalInteresadosProbarlo = 0;
+        int totalSimulaciones = 0;
+
         // Creación de los vectores
         double[] vectorPar = new double[8];
         double[] vectorImpar = new double[8];
@@ -99,64 +110,90 @@ public class VectorEstado {
         double[][] matriz = new double[j + i < N ? i + 1 : i][8];
         double[] ultimaFila = null;
 
-        // Generación de valores aleatorios para los vectore
+        // Variables para contar los que ya compraron y los probables compradores
         int contadorYaComprado = 0;
         int contadorProbableCompra = 0;
+
+        // Bucle para generar los valores aleatorios
         for (int muestras = 0; muestras < N; muestras++) {
-           double rndGen;
-           double rnd;
-           int acumYaComprado;
-           int acumProbableCompra;
+            double rndGen;
+            double rnd;
+            int acumYaComprado;
+            int acumProbableCompra;
 
-           if(muestras == 0) {
-               rndGen = calcularRandom();
-               category = getcategory(rndGen);
-               if (category == 3) {
-                   int category3 = 3;
-                   rnd = calcularRandom();
-                   int contadorYaComprado = getContYaComprado(category3, rnd);
-                   int contadorProbableCompra = getContProbableCompra(category3, rnd);
+            if (muestras == 0) {
+                rndGen = calcularRandom();
+                int category = getcategory(rndGen);
+                if(category ==3){
+                    rnd = calcularRandom();
+                    contadorYaComprado = getContYaComprado(category, rnd);
+                    contadorProbableCompra = getContProbableCompra(category, rnd);
+                }else if(category == 4){
+                    rnd = calcularRandom();
+                    contadorYaComprado = getContYaComprado(category, rnd);
+                    contadorProbableCompra = getContProbableCompra(category, rnd);
+                }else {
+                    contadorYaComprado = 0;
+                    contadorProbableCompra = 0;
+                }
 
-               } else if (category == 4) {
-                   rnd = calcularRandom();
-                   int category4 = 4;
-                   int contadorYaComprado = getContYaComprado(category4, rnd);
-                   int contadorProbableCompra = getContProbableCompra(category4, rnd);
-               }
-               acumYaComprado = contadorYaComprado;
-               acumProbableCompra = contadorProbableCompra;
-           }else {
-               double[] vectorAnterior = muestras % 2 == 0 ? vectorImpar : vectorPar;
+                acumYaComprado = contadorYaComprado;
+                acumProbableCompra = contadorProbableCompra;
+            } else {
+                double[] vectorAnterior = muestras % 2 == 0 ? vectorImpar : vectorPar;
 
-               rndGen = calcularRandom();
-               category = getcategory(rndGen);
-               if (category == 3) {
-                   int category3 = 3;
-                   rnd = calcularRandom();
-                   int contadorYaComprado = getContYaComprado(category3, rnd);
-                   int contadorProbableCompra = getContProbableCompra(category3, rnd);
+                rndGen = calcularRandom();
+                int category = getcategory(rndGen);
+                if(category ==3){
+                    rnd = calcularRandom();
+                    contadorYaComprado = getContYaComprado(category, rnd);
+                    contadorProbableCompra = getContProbableCompra(category, rnd);
+                }else if(category == 4){
+                    rnd = calcularRandom();
+                    contadorYaComprado = getContYaComprado(category, rnd);
+                    contadorProbableCompra = getContProbableCompra(category, rnd);
+                }else {
+                    contadorYaComprado = 0;
+                    contadorProbableCompra = 0;
+                }
+                acumYaComprado = contadorYaComprado + (int) vectorAnterior[6];
+                acumProbableCompra = contadorProbableCompra + (int) vectorAnterior[7];
+                contadorYaComprado = 0;
+                contadorProbableCompra = 0;
+            }
 
-               } else if (category == 4) {
-                   rnd = calcularRandom();
-                   int category4 = 4;
-                   int contadorYaComprado = getContYaComprado(category4, rnd);
-                   int contadorProbableCompra = getContProbableCompra(category4, rnd);
-               }
-               acumYaComprado = contadorYaComprado + vectorAnterior[6];
-               acumProbableCompra = contadorProbableCompra + vectorAnterior[7];
-           }
-           double porcentajeYaComprado = calcularPorcentaje();
+            // Calcular el porcentaje de los que ya compraron
+            double porcentajeYaComprado = calcularPorcentaje(acumYaComprado, muestras + 1);
+
+            //calcular la probabilidad de los que probablemente compraran
+            double promedioProbableCompra = calcularPorcentaje(acumProbableCompra, muestras + 1);
+
+
+            double[] vectorActual = {
+                    muestras,
+                    rndGen,
+                    contadorYaComprado,
+                    contadorProbableCompra,
+                    porcentajeYaComprado,
+                    promedioProbableCompra,
+                    acumYaComprado,
+                    acumProbableCompra
+            };
+
+
+
+            // Asignación de los valores a los vectores según la muestra
+            if (muestras % 2 == 0) {
+                vectorPar[6] = acumYaComprado;
+                vectorPar[7] = acumProbableCompra;
+                matriz[muestras / 2] = vectorPar.clone();
+            } else {
+                vectorImpar[6] = acumYaComprado;
+                vectorImpar[7] = acumProbableCompra;
+                matriz[muestras / 2] = vectorImpar.clone();
+            }
         }
 
-
-
-
-
-
-
-
+        return matriz;
     }
-
-
-
 }
