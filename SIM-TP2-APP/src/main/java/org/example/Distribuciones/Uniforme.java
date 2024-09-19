@@ -53,7 +53,6 @@ public class Uniforme extends Distribucion {
 
         // generateButton
         Button generateButton = new Button("Generar");
-        generateButton.setDisable(true);
 
         // volverButton
         Button volverButton = new Button("Volver");
@@ -76,7 +75,6 @@ public class Uniforme extends Distribucion {
                 } catch (NumberFormatException e) {
                     areInputsValid[0] = false;
                 } finally {
-                    generateButton.setDisable(BooleanUtils.isAnyValueOfArrayFalse(areInputsValid));
                 }
             }
         });

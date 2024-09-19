@@ -56,7 +56,6 @@ public class Normal extends Distribucion {
                 } catch (NumberFormatException e) {
                     areInputsValid[0] = false;
                 } finally {
-                    generateButton.setDisable(BooleanUtils.isAnyValueOfArrayFalse(areInputsValid));
                 }
             }
         });
