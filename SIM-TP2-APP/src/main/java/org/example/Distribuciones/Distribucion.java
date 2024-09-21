@@ -1,11 +1,13 @@
 package org.example.Distribuciones;
 
 import com.opencsv.CSVWriter;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import lombok.AccessLevel;
@@ -21,7 +23,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 
 @Data
 @FieldDefaults(level = AccessLevel.PROTECTED)
@@ -82,19 +83,13 @@ public abstract class Distribucion {
         }
 
         // FRECUENCIA OBSERVADA
-        // Inicializa el array de la frecuencia observada
         frecuenciasObservadas = new ArrayList<>(Collections.nCopies(cantidadDeIntervalosK, 0));
-        // Recorremos cada uno de los valores aleatorios con distribución uniforme
         for (double dataValue : rndDistribution) {
             for (int i = 0; i < cantidadDeIntervalosK; i++) {
-                // Chequear si el número cae dentro del intervalo
                 if (dataValue >= limites.get(i)[0] && dataValue < limites.get(i)[1]) {
-                    // Incrementar la frecuencia en ese intervalo
                     frecuenciasObservadas.set(i, frecuenciasObservadas.get(i) + 1);
-                    // Una vez que el intervalo es encontrado, pasa al siguiente valor de rndDistribution
                     break;
                 } else if (i == cantidadDeIntervalosK - 1) {
-                    // Si el valor es igual al último intervalo, se incrementa la frecuencia en el último intervalo
                     frecuenciasObservadas.set(i, frecuenciasObservadas.get(i) + 1);
                 }
             }
@@ -111,10 +106,8 @@ public abstract class Distribucion {
         }
 
         // Acumular cuando las frecuencias esperadas sean menor que 5
-        // Recorrer todas las FE
         filaActualLoop: for (int filaActual = 0; filaActual < cantidadDeIntervalosK; filaActual++) {
             if (frecuenciasEsperadas.get(filaActual) < 5) {
-                // Cuando encontramos una FE menor a 5, verificamos hasta qué indice hay que acumular
                 int ultimaFilaASumar = filaActual;
                 double sumaFrecuenciasEsperadas = 0;
                 ultimaFilaLoop: while (sumaFrecuenciasEsperadas < 5) {
@@ -122,40 +115,29 @@ public abstract class Distribucion {
                         sumaFrecuenciasEsperadas += frecuenciasEsperadas.get(ultimaFilaASumar);
                         ultimaFilaASumar++;
                     } else {
-                        // Se alcanzó el último intervalo y la suma no dio mayor a 5
                         if (filaActual != 0) {
-                            // Se debe acumular con el intervalo anterior, el cual ya es >= 5
                             filaActual -= 1;
                             break ultimaFilaLoop;
                         } else {
-                            // No alcanzaron todas las filas para llegar a 5, no se acumulan las filas
                             break filaActualLoop;
                         }
                     }
                 }
                 ultimaFilaASumar -= 1;
 
-                // Actualizar K
                 cantidadDeIntervalosK -= ultimaFilaASumar - filaActual;
-                // Actualizar Limites
                 limites.get(filaActual)[1] = limites.get(ultimaFilaASumar)[1];
-                // Acumular FO, FE y Chi Cuadrado Calculado
                 frecuenciasObservadas.set(filaActual, ListUtils.sumIntegerListFromIToJ(frecuenciasObservadas, filaActual, ultimaFilaASumar));
                 frecuenciasEsperadas.set(filaActual, ListUtils.sumDoubleListFromIToJ(frecuenciasEsperadas, filaActual, ultimaFilaASumar));
                 chiCuadradoCalculado.set(filaActual, ListUtils.sumDoubleListFromIToJ(chiCuadradoCalculado, filaActual, ultimaFilaASumar));
 
-                // Eliminar las filas desde la actual mas 1 hasta la ultima fila a sumar
                 limites.subList(filaActual + 1, ultimaFilaASumar + 1).clear();
                 frecuenciasObservadas.subList(filaActual + 1, ultimaFilaASumar + 1).clear();
                 frecuenciasEsperadas.subList(filaActual + 1, ultimaFilaASumar + 1).clear();
                 chiCuadradoCalculado.subList(filaActual + 1, ultimaFilaASumar + 1).clear();
             }
         }
-
-
     }
-
-
 
     void showResults() {
         generateCsv();
@@ -164,6 +146,7 @@ public abstract class Distribucion {
         muestraLabel.setPadding(new Insets(0, 0, 10, 0));
         Label intervalosLabel = new Label("Cantidad de Intervalos Seleccionados: " + cantidadDeIntervalosK);
         intervalosLabel.setPadding(new Insets(0, 0, 10, 0));
+
         StringBuilder intervalosStr = new StringBuilder();
         for (Double[] intervalo : limites) {
             intervalosStr.append(Arrays.toString(intervalo)).append(" ");
@@ -173,19 +156,55 @@ public abstract class Distribucion {
         vbox.setAlignment(Pos.CENTER_LEFT); // Alineación a la izquierda
         vbox.setPadding(new Insets(20));
 
+        // Crear la tabla para mostrar las frecuencias
+        TableView<Frecuencia> tableView = new TableView<>();
+        TableColumn<Frecuencia, String> intervaloColumn = new TableColumn<>("Intervalo");
+        intervaloColumn.setCellValueFactory(new PropertyValueFactory<>("intervalo"));
+
+        TableColumn<Frecuencia, Integer> frecuenciaObservadaColumn = new TableColumn<>("Frecuencia Observada");
+        frecuenciaObservadaColumn.setCellValueFactory(new PropertyValueFactory<>("frecuenciaObservada"));
+
+        TableColumn<Frecuencia, Double> frecuenciaEsperadaColumn = new TableColumn<>("Frecuencia Esperada");
+        frecuenciaEsperadaColumn.setCellValueFactory(new PropertyValueFactory<>("frecuenciaEsperada"));
+
+        tableView.getColumns().addAll(intervaloColumn, frecuenciaObservadaColumn, frecuenciaEsperadaColumn);
+
+        ObservableList<Frecuencia> frecuenciasList = FXCollections.observableArrayList();
+        for (int i = 0; i < cantidadDeIntervalosK; i++) {
+            String intervalo = String.format("[%.4f; %.4f]", limites.get(i)[0], limites.get(i)[1]);
+            int freqObservada = frecuenciasObservadas.get(i);
+            double freqEsperada = frecuenciasEsperadas.get(i);
+            frecuenciasList.add(new Frecuencia(intervalo, freqObservada, freqEsperada));
+        }
+
+        // Configura la tabla para mostrar solo 4 decimales en la columna de frecuencia esperada
+        frecuenciaEsperadaColumn.setCellFactory(column -> {
+            return new TableCell<Frecuencia, Double>() {
+                @Override
+                protected void updateItem(Double item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(String.format("%.4f", item)); // Mostrar 4 decimales
+                    }
+                }
+            };
+        });
+
+        tableView.setItems(frecuenciasList);
+
         // Crear el botón para mostrar el histograma
         Button histogramButton = new Button("Ver Histograma");
         histogramButton.setOnAction(e -> {
-            // Llama a la función showHistogram cuando se presiona el botón
             Histogram.displayHistogram(limites, frecuenciasObservadas);
         });
 
         // Crear el botón para volver
         Button volverButton = new Button("Volver al Inicio");
         volverButton.setOnAction(e -> {
-            Stage currentStage = (Stage) vbox.getScene().getWindow();
+            Stage currentStage = (Stage) volverButton.getScene().getWindow();
             currentStage.close();
-            // Reabre la ventana principal
             try {
                 new App().start(new Stage());
             } catch (Exception ex) {
@@ -193,70 +212,42 @@ public abstract class Distribucion {
             }
         });
 
-        // Agregar los botones al VBox
-        vbox.getChildren().addAll(histogramButton, volverButton);
-        VBox.setMargin(volverButton, new Insets(20, 0, 0, 0));
-
-        Label minLabel = new Label("Mínimo: " + String.format("%.4f", min));
-        minLabel.setPadding(new Insets(0, 0, 10, 0));
-        Label maxLabel = new Label("Máximo: " + String.format("%.4f", max));
-        maxLabel.setPadding(new Insets(0, 0, 10, 0));
-        Label rangoLabel = new Label("Rango: " + String.format("%.4f", rango));
-        rangoLabel.setPadding(new Insets(0, 0, 10, 0));
-        Label amplitudLabel = new Label("Amplitud: " + String.format("%.4f", amplitud));
-        amplitudLabel.setPadding(new Insets(0, 0, 10, 0));
-        Label mediaLabel = new Label("Media: " + String.format("%.4f", media));
-        mediaLabel.setPadding(new Insets(0, 0, 10, 0));
-        Label varianzaLabel = new Label("Varianza: " + String.format("%.4f", varianza));
-        varianzaLabel.setPadding(new Insets(0, 0, 10, 0));
-        Label frecuenciaObservadaLabel = new Label("Frecuencia Observada: " + frecuenciasObservadas);
-        frecuenciaObservadaLabel.setPadding(new Insets(0, 0, 10, 0));
-
-        // Formatear la frecuencia esperada con cuatro decimales
-        StringBuilder frecuenciaEsperadaStr = new StringBuilder();
-        for (Double frecuenciaEsperada : frecuenciasEsperadas) {
-            frecuenciaEsperadaStr.append(String.format("%.4f", frecuenciaEsperada)).append(" ");
-        }
-        Label frecuenciaEsperadaLabel = new Label("Frecuencia Esperada: " + frecuenciaEsperadaStr.toString());
-        frecuenciaEsperadaLabel.setPadding(new Insets(0, 0, 10, 0));
-
-        Label chiCuadradoLabel = new Label("Chi Cuadrado: " + String.format("%.4f", ListUtils.sumList(chiCuadradoCalculado)));
-        chiCuadradoLabel.setPadding(new Insets(0, 0, 10, 0));
-
-        // Limpiar el VBox antes de agregar nuevas etiquetas
-        vbox.getChildren().clear();
-        // Agregar etiquetas al VBox existente
+        // Agregar las etiquetas, la tabla y los botones al VBox
         vbox.getChildren().addAll(
-                muestraLabel, intervalosLabel, minLabel, maxLabel, rangoLabel,
-                amplitudLabel, mediaLabel, varianzaLabel, frecuenciaObservadaLabel,
-                frecuenciaEsperadaLabel, chiCuadradoLabel, histogramButton, volverButton);
+                muestraLabel,
+                intervalosLabel,
+                new Label("Mínimo: " + String.format("%.4f", min)),
+                new Label("Máximo: " + String.format("%.4f", max)),
+                new Label("Rango: " + String.format("%.4f", rango)),
+                new Label("Amplitud: " + String.format("%.4f", amplitud)),
+                new Label("Media: " + String.format("%.4f", media)),
+                new Label("Varianza: " + String.format("%.4f", varianza)),
+                new Label("Chi Cuadrado: " + String.format("%.4f", ListUtils.sumList(chiCuadradoCalculado))),
+                tableView,
+                histogramButton,
+                volverButton
+        );
 
-        // Establecer el título de la ventana
-        Stage stage = new Stage();
-        stage.setTitle("Resultados del Análisis");
-        Scene dataScene = new Scene(vbox, 600, 500);
-        stage.setScene(dataScene);
-        stage.show();
+        // Crear y mostrar la escena
+        Scene scene = new Scene(vbox, 800, 600);
+        Stage window = new Stage();
+        window.setScene(scene);
+        window.setTitle("Resultados del Análisis");
+        window.show();
 
         CSVUtils.abrirCSV((csvFilePath));
     }
 
 
 
-
-
-
-
-
     private void generateCsv() {
-        // Escribe los números aleatorios generados en un archivo CSV
         try (CSVWriter writer = new CSVWriter(new FileWriter(csvFilePath))) {
-            writer.writeNext(new String[] {"Random (0;1)", "Random Distribucion"});
+            writer.writeNext(new String[]{"Random (0;1)", "Random Distribucion"});
 
             for (int i = 0; i < rnd01.length; i++) {
                 String formattedRnd01 = String.format("%.4f", rnd01[i]);
                 String formattedRndDistribution = String.format("%.4f", rndDistribution[i]);
-                writer.writeNext(new String[] { formattedRnd01, formattedRndDistribution } );
+                writer.writeNext(new String[]{formattedRnd01, formattedRndDistribution});
             }
             System.out.println("Números aleatorios generados y guardados en el archivo CSV: " + csvFilePath);
         } catch (IOException e) {
@@ -264,4 +255,17 @@ public abstract class Distribucion {
         }
     }
 
+    @Data
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class Frecuencia {
+        String intervalo;
+        int frecuenciaObservada;
+        double frecuenciaEsperada;
+
+        public Frecuencia(String intervalo, int frecuenciaObservada, double frecuenciaEsperada) {
+            this.intervalo = intervalo;
+            this.frecuenciaObservada = frecuenciaObservada;
+            this.frecuenciaEsperada = frecuenciaEsperada;
+        }
+    }
 }

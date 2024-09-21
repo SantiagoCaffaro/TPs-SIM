@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="be5bb44e-d003-4b71-95dc-017a1cc8455b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/SIM-TP2-APP/Tabla-Numero-Aleatorios/numerosgenerados.csv" beforeDir="false" afterPath="$PROJECT_DIR$/SIM-TP2-APP/Tabla-Numero-Aleatorios/numerosgenerados.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SIM-TP2-APP/src/main/java/org/example/Distribuciones/Distribucion.java" beforeDir="false" afterPath="$PROJECT_DIR$/SIM-TP2-APP/src/main/java/org/example/Distribuciones/Distribucion.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2mMHeQ3sfaaJm0F0c1W2Gl3XCi1" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="be5bb44e-d003-4b71-95dc-017a1cc8455b" name="Changes" comment="" />
+      <created>1726879623048</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1726879623048</updated>
+      <workItem from="1726879626433" duration="35000" />
+      <workItem from="1726882085109" duration="4000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
