@@ -84,17 +84,17 @@ public class VectorEstado {
     }
 
     // Método para contar las personas que ya compraron basado en la categoría
-    private int getContYaComprado(int category, double rnd) {
+    private int getContYaComprado(int category, double rnd1, double rnd2) {
         int totalYaCompraron = 0;
 
         switch (category) {
             case 3: // probPersAdultaNoRecuerdaFlayer
-                if (rnd < probCompraNoRecuerda) {
+                if (rnd1 < probCompraNoRecuerda) {
                     totalYaCompraron++;
                 }
                 break;
             case 4: // probPersAdultaRecuerdaFlayer
-                if (rnd < probCompraRecuerda) {
+                if (rnd2 < probCompraRecuerda) {
                     totalYaCompraron++;
                 }
                 break;
@@ -105,17 +105,17 @@ public class VectorEstado {
     }
 
     // Método para contar las personas que probablemente comprarán basado en la categoría
-    private int getContProbableCompra(int category, double rnd) {
+    private int getContProbableCompra(int category, double rnd1, double rnd2) {
         int totalProbablesCompra = 0;
 
         switch (category) {
             case 3: // probPersAdultaNoRecuerdaFlayer
-                if (rnd >= probCompraNoRecuerda & rnd < (probCompraNoRecuerda + probProbableNoRecuerda)) {
+                if (rnd1 >= probCompraNoRecuerda & rnd1 < (probCompraNoRecuerda + probProbableNoRecuerda)) {
                     totalProbablesCompra++;
                 }
                 break;
             case 4: // probPersAdultaRecuerdaFlayer
-                if (rnd >= probCompraRecuerda & rnd < (probCompraRecuerda + probProbableRecuerda)) {
+                if (rnd2 >= probCompraRecuerda & rnd2 < (probCompraRecuerda + probProbableRecuerda)) {
                     totalProbablesCompra++;
                 }
                 break;
@@ -130,6 +130,10 @@ public class VectorEstado {
         return (double) total / muestras * 100;
     }
 
+    // Método para calcular el promedio
+    private double calcularPromedio(int total, int muestras) {
+        return (double) total / muestras;
+    }
 
     public double[][] generadorVectoresParImpar(int N, int i, int j) {
         // Asegurarse de que 'j + i' no sea mayor que 'N'
@@ -138,9 +142,9 @@ public class VectorEstado {
         }
 
         // Inicializar la matriz con el tamaño correcto
-        double[][] matriz = new double[i + 1][8]; // `i + 1` para incluir la fila de ceros
+        double[][] matriz = new double[i + 1][10]; // `i + 1` para incluir la fila de ceros
 
-        matriz[0] = new double[]{0, 0, 0, 0, 0, 0, 0, 0}; // Fila de inicialización
+        matriz[0] = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Fila de inicialización
 
         int acumuladorYaComprado = 0;
         int acumuladorProbableCompra = 0;
@@ -149,9 +153,10 @@ public class VectorEstado {
         for (int muestras = 0; muestras < N; muestras++) {
             double rndGen = calcularRandom();
             int category = getCategory(rndGen);
-            double rnd = calcularRandom();
-            int contadorYaComprado = getContYaComprado(category, rnd);
-            int contadorProbableCompra = getContProbableCompra(category, rnd);
+            double rnd1 = calcularRandom();
+            double rnd2 = calcularRandom();
+            int contadorYaComprado = getContYaComprado(category, rnd1, rnd2);
+            int contadorProbableCompra = getContProbableCompra(category, rnd1, rnd2);
 
             acumuladorYaComprado += contadorYaComprado;
             acumuladorProbableCompra += contadorProbableCompra;
@@ -163,6 +168,8 @@ public class VectorEstado {
             double[] vectorActual = {
                     muestras,
                     rndGen,
+                    rnd1,
+                    rnd2,
                     contadorYaComprado,
                     acumuladorYaComprado,
                     contadorProbableCompra,
@@ -178,6 +185,70 @@ public class VectorEstado {
         }
 
         return matriz;
+}
+
+
+//aca generas matriz sin limitaciones
+    public double[][] generadorVectoresCompleto(int N) {
+            // Inicializar la matriz con el tamaño N
+            double[][] matriz = new double[N][10]; // Cada fila tiene 8 valores
+
+            int acumuladorYaComprado = 0;
+            int acumuladorProbableCompra = 0;
+
+            // Bucle para generar valores aleatorios
+            for (int muestras = 0; muestras < N; muestras++) {
+                double rndGen = calcularRandom();
+                int category = getCategory(rndGen);
+                double rnd1 = calcularRandom();
+                double rnd2 = calcularRandom();
+                int contadorYaComprado = getContYaComprado(category, rnd1,rnd2);
+                int contadorProbableCompra = getContProbableCompra(category, rnd1,rnd2);
+
+                acumuladorYaComprado += contadorYaComprado;
+                acumuladorProbableCompra += contadorProbableCompra;
+
+                // Calcular  porcentaje y promedio
+                double porcentajeYaComprado = calcularPorcentaje(acumuladorYaComprado, muestras);
+                double promedioProbableCompra = calcularPromedio(acumuladorProbableCompra, muestras);
+
+                // Llenar la matriz con los datos generados
+                matriz[muestras] = new double[]{
+                        muestras,
+                        rndGen,
+                        rnd1,
+                        rnd2,
+                        contadorYaComprado,
+                        acumuladorYaComprado,
+                        contadorProbableCompra,
+                        acumuladorProbableCompra,
+                        porcentajeYaComprado,
+                        promedioProbableCompra
+                };
+            }
+
+            return matriz;
+    }
+
+    // Función para limitar la matriz generada
+    public double[][] limitarMatriz(double[][] matrizCompleta, int i, int j) {
+        // Asegurarse de que 'j + i' no sea mayor que el tamaño de la matriz completa
+        if (j + i > matrizCompleta.length) {
+            throw new IllegalArgumentException("La suma de i y j no puede ser mayor que el tamaño de la matriz completa");
+        }
+
+        // Crear una nueva matriz limitada, con espacio para 'i + 1' filas (incluyendo la fila de ceros)
+        double[][] matrizLimitada = new double[i + 1][10];
+
+        // Fila de inicialización de ceros
+        matrizLimitada[0] = new double[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // Fila de inicialización
+
+        // Copiar las filas de la matriz completa que cumplen la condición (entre j y j+i)
+        for (int muestras = j; muestras < j + i; muestras++) {
+            matrizLimitada[muestras - j + 1] = matrizCompleta[muestras];
+        }
+
+        return matrizLimitada;
     }
 
 

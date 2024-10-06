@@ -27,9 +27,9 @@ public class Excel {
             Sheet sheet = wb.createSheet("Tabla Montecarlo");
 
             // Títulos de columnas
-            String[] columnTitles = {"Muestra", "RND Gen", "Ya Comprado", "Acum. Ya Comprado", "Probable Compra",
+            String[] columnTitles = {"Encuestado", "RND General", "RND No Recuerdan", "RND Recuerdan", "Ya Comprado", "Acum. Ya Comprado", "Probable Compra",
                     "Acum. Probable Compra","Porc. Ya Comprado", "Prob. Probable Compra"
-                    };
+            };
 
             // Crear la fila de títulos
             Row titleRow = sheet.createRow(0);

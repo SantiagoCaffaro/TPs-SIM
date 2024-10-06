@@ -68,20 +68,21 @@ public class SimulationUI extends Application {
         TextField textPruebaNoRecuerda = new TextField("0.80");
 
         // Campos para los valores N, i, j
-        Label labelMuestras = new Label("Número de muestras (N):");
+        Label labelMuestras = new Label("Tamaño de la muestra: (N):");
         TextField textMuestras = new TextField("100");
 
-        Label labelFila = new Label("Número de filas a mostrar (i):");
-        TextField textFila = new TextField("10");
+        Label labelFila = new Label("Número de filas a mostrar:(i):");
+        TextField textFila = new TextField("50");
 
-        Label labelColumna = new Label("Desde que fila (j):");
-        TextField textColumna = new TextField("8");
+        Label labelColumna = new Label("Desde que fila se muestra: (j):");
+        TextField textColumna = new TextField("10");
 
         // Botón para iniciar la simulación
         Button btnSimular = new Button("Iniciar Simulación");
+
         btnSimular.setOnAction(e -> {
             try {
-                // Validar que todas las probabilidades sean numéricas y estén en el rango correcto (0 a 1)
+                // Validar probabilidades
                 double probNegarse = validarProbabilidad(textNegarse);
                 double probNoInternet = validarProbabilidad(textNoInternet);
                 double probAdultoNoRecuerda = validarProbabilidad(textAdultoNoRecuerda);
@@ -100,68 +101,75 @@ public class SimulationUI extends Application {
                 int i = Integer.parseInt(textFila.getText());
                 int j = Integer.parseInt(textColumna.getText());
 
+                // Generar la matriz completa
                 VectorEstado simulator = new VectorEstado(
                         probNegarse, probNoInternet, probAdultoNoRecuerda, probAdultoRecuerda,
                         probNoAdultoRecuerda, probNoAdultoNoRecuerda, probCompraRecuerda,
                         probProbableRecuerda, probPruebaRecuerda, probCompraNoRecuerda,
                         probProbableNoRecuerda, probPruebaNoRecuerda
                 );
+                // Generar la matriz completa usando generadorVectoresCompleto
+                double[][] matrizCompleta = simulator.generadorVectoresCompleto(N);
 
-                double[][] paresImpares = simulator.generadorVectoresParImpar(N, i, j);
+                // Aplicar la limitación con limitarMatriz
+                double[][] matrizLimitada = simulator.limitarMatriz(matrizCompleta, i, j);
+
+                // Exportar la matriz limitada a Excel
                 String excelPath = "resultados_simulacion.xlsx";
-                Excel.crearExcel(excelPath, paresImpares);
+                Excel.crearExcel(excelPath, matrizLimitada);
 
                 // Abrir el archivo Excel
                 abrirArchivoExcel(excelPath);
 
-                // Crear el GridPane para mostrar los resultados de la última fila
+                // Mostrar la última fila sin limitaciones (de la matriz completa)
+                double[] ultimaFilaCompleta = matrizCompleta[N - 1];  // Última fila del vector sin limitaciones
+
+                // Crear el GridPane para mostrar la última fila
                 GridPane resultGrid = new GridPane();
                 resultGrid.setPadding(new Insets(10, 10, 10, 10));
                 resultGrid.setVgap(5);
                 resultGrid.setHgap(5);
 
-                // Crear las etiquetas para los encabezados de la tabla (columna)
-                String[] columnTitles = {"|Muestra |", "RND Gen |", "Ya Comprado |", "Acum. Ya Comprado |", "Probable Compra |", "Acum. Probable Compra |", "Porc. Ya Comprado |", "Prob. Probable Compra |"};
+                // Crear las etiquetas para los encabezados de la tabla (columnas)
+                String[] columnTitles = {"|Encuestado |", "RND General |","RND No recuerda |","RND Recuerda |", "Ya Comprado |", "Acum. Ya Comprado |",
+                        "Probable Compra |", "Acum. Probable Compra |", "Porc. Ya Comprado |",
+                        "Prob. Probable Compra |"};
                 for (int k = 0; k < columnTitles.length; k++) {
                     Label headerLabel = new Label(columnTitles[k]);
                     headerLabel.setStyle("-fx-font-weight: bold");
-                    resultGrid.add(headerLabel, k, 0); // Colocamos los títulos en la primera fila
+                    resultGrid.add(headerLabel, k, 0);  // Títulos en la primera fila
                 }
-
-                // Acceder a la última fila simulada de forma segura
-                int filasAMostrar = Math.min(i, N); // Asegura que no exceda el tamaño de la muestra
-                double[] ultimaFila = paresImpares[filasAMostrar]; // Acceder a la última fila basada en filasAMostrar
 
                 // Añadir los datos de la última fila al GridPane
-                for (int k = 0; k < ultimaFila.length; k++) {
+                for (int k = 0; k < ultimaFilaCompleta.length; k++) {
                     String formattedValue;
-                    if (k == 1 || k == 6 || k == 7) { // RND Gen, Porc. Ya Comprado y Prob. Probable Compra
-                        formattedValue = String.format("%.4f", ultimaFila[k]).replace('.', ',');
+                    if (k == 1 || k == 2 || k == 3 || k == 8 || k == 9) { // RND Gen, Porc. Ya Comprado y Prob. Probable Compra
+                        formattedValue = String.format("%.4f", ultimaFilaCompleta[k]).replace('.', ',');
                     } else { // Otros valores
-                        formattedValue = String.valueOf((int) ultimaFila[k]);
+                        formattedValue = String.valueOf((int) ultimaFilaCompleta[k]);
                     }
-                    Label dataLabel = new Label(formattedValue); // Formato para mostrar como string
-                    resultGrid.add(dataLabel, k, 1); // Colocamos los datos en la segunda fila
+                    Label dataLabel = new Label(formattedValue);
+                    resultGrid.add(dataLabel, k, 1);  // Datos en la segunda fila
                 }
 
-                // Crear el Alert y añadir los resultados previos junto con el GridPane que tiene la tabla
+                // Crear el Alert y añadir el resultado
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Resultados de la Simulación");
                 alert.setHeaderText(null);
 
-                // Crear un contenedor VBox para combinar el texto y la tabla
+                // Contenedor VBox para mostrar el texto y la tabla
                 VBox dialogContent = new VBox();
                 dialogContent.setSpacing(10);
                 dialogContent.getChildren().addAll(
                         new Label("Simulación completada."),
-                        new Label("Porcentaje de compradores: " + String.format("%.2f", ultimaFila[6]) + "%"),
-                        new Label("Probabilidad de compra para adultos: " + String.format("%.4f", ultimaFila[7]).replace('.', ',')),
-                        new Label("Última fila simulada:"),
-                        resultGrid // Añadimos la tabla con la última fila simulada
+                        new Label("Porcentaje de compradores: " + String.format("%.2f", ultimaFilaCompleta[8]) + "%"),
+                        new Label("Probabilidad de compra para adultos: " + String.format("%.4f", ultimaFilaCompleta[9]).replace('.', ',')),
+                        new Label("Última fila simulada (sin limitaciones):"),
+                        resultGrid
                 );
 
                 alert.getDialogPane().setContent(dialogContent);
-                alert.showAndWait(); // Asegúrate de que se llama showAndWait() aquí
+                alert.showAndWait();
 
             } catch (IllegalArgumentException ex) {
                 mostrarAlertaError("Error en validación", ex.getMessage());
@@ -271,7 +279,7 @@ public class SimulationUI extends Application {
         grid.add(labelColumna, 0, 18);
         grid.add(textColumna, 1, 18);
 
-        grid.add(btnSimular, 0, 19, 2, 1); // Botón ocupa dos columnas
+        grid.add(btnSimular, 1,20, 1, 1); // Botón ocupa dos columnas
 
     }
 
